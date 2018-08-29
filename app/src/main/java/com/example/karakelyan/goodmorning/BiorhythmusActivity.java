@@ -1,5 +1,7 @@
 package com.example.karakelyan.goodmorning;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,10 +17,10 @@ import java.util.Date;
 
 public class BiorhythmusActivity extends AppCompatActivity {
 
-    EditText edDate;
-//    int Day;
-//    int Month;
-//    int Year;
+    TextView edDate;
+    int DIALOG_DATE=1;
+    Calendar calendar;
+    SimpleDateFormat dateformat;
     TextView twEmotional;
     TextView twIntellectual;
     TextView twPhysics;
@@ -28,12 +30,38 @@ public class BiorhythmusActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_biorhythmus);
-
-        edDate = (EditText)findViewById(R.id.edDate);
+        dateformat = new SimpleDateFormat("dd.MM.yyyy");
+        calendar =Calendar.getInstance();
+        edDate = (TextView) findViewById(R.id.edDate);
         twEmotional = (TextView)findViewById(R.id.twEmotional);
         twIntellectual = (TextView)findViewById(R.id.twIntellectual);
         twPhysics = (TextView)findViewById(R.id.twPhysics);
     }
+
+    public void onClick(View view){
+        showDialog(DIALOG_DATE);
+    }
+
+    protected Dialog onCreateDialog(int id) {
+        if (id == DIALOG_DATE) {
+
+            DatePickerDialog tpd = new DatePickerDialog(this, myCallBack,
+                    calendar.get(Calendar.DAY_OF_MONTH),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.YEAR));
+            return tpd;
+        }
+        return super.onCreateDialog(id);
+    }
+
+    DatePickerDialog.OnDateSetListener myCallBack = new DatePickerDialog.OnDateSetListener() {
+
+        public void onDateSet(DatePicker view, int year, int monthOfYear,
+                              int dayOfMonth) {
+            monthOfYear++;
+            edDate.setText(dayOfMonth+"."+monthOfYear+"."+year);
+        }
+    };
 
     public  void onCalculateBiorhytmusClick(View view) {
         String a = edDate.getText().toString();
@@ -57,8 +85,6 @@ public class BiorhythmusActivity extends AppCompatActivity {
     }
 
     public  int calcDiff (String a){
-        Calendar calendar =Calendar.getInstance();
-        SimpleDateFormat dateformat = new SimpleDateFormat("dd.MM.yyyy");
         String currentTime=dateformat.format(calendar.getTime());
         Date date1=null;
         Date date2=null;

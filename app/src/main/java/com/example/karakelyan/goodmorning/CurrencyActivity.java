@@ -61,6 +61,7 @@ public class CurrencyActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             progressBar.setVisibility(ProgressBar.INVISIBLE);
             list.add(new CurrencyCompare(Frst,Scnd,result));
+
             listView.setAdapter(adapter);
         }
     }
