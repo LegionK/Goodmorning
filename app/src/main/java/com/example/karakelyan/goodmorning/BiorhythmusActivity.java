@@ -2,6 +2,8 @@ package com.example.karakelyan.goodmorning;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -24,6 +26,7 @@ public class BiorhythmusActivity extends AppCompatActivity {
     TextView twEmotional;
     TextView twIntellectual;
     TextView twPhysics;
+    SQLiteDatabase db;
 
 
     @Override
@@ -36,6 +39,21 @@ public class BiorhythmusActivity extends AppCompatActivity {
         twEmotional = (TextView)findViewById(R.id.twEmotional);
         twIntellectual = (TextView)findViewById(R.id.twIntellectual);
         twPhysics = (TextView)findViewById(R.id.twPhysics);
+        db=getBaseContext().openOrCreateDatabase("Goodmorning.db",MODE_PRIVATE, null);
+        db.execSQL("CREATE TABLE IF NOT EXISTS bday (bdate DATE);");
+        getBday();
+
+    }
+    public void getBday(){
+        Cursor query =db.rawQuery("SELECT * FROM bday;",null);
+        if (query.moveToFirst()){
+            do {
+                String date =query.getString(0);
+                edDate.setText(date);
+            }
+            while (query.moveToNext());
+        }
+        query.close();
     }
 
     public void onClick(View view){
@@ -65,11 +83,17 @@ public class BiorhythmusActivity extends AppCompatActivity {
 
     public  void onCalculateBiorhytmusClick(View view) {
         String a = edDate.getText().toString();
+        db=getBaseContext().openOrCreateDatabase("Goodmorning.db",MODE_PRIVATE, null);
+        db.execSQL("DELETE FROM bday;");
+        db.execSQL("INSERT INTO bday VALUES('"+a+"');");
+        db.close();
+
 //        String[] dates = new String[3];
 //        dates = a.split(".");
 //        Day = Integer.parseInt(dates[0]);
 //        Month = Integer.parseInt(dates[1]);
 //        Year = Integer.parseInt(dates[2]);
+
         int days = calcDiff(a);
         double physical=(Math.sin(2*Math.PI*days/23))*100;
         double emo=(Math.sin(2*Math.PI*days/28))*100;
