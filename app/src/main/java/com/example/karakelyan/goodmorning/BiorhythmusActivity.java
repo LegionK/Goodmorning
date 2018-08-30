@@ -1,5 +1,9 @@
 package com.example.karakelyan.goodmorning;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,33 +19,81 @@ import java.util.Date;
 
 public class BiorhythmusActivity extends AppCompatActivity {
 
-    EditText edDate;
-//    int Day;
-//    int Month;
-//    int Year;
+    TextView edDate;
+    int DIALOG_DATE=1;
+    Calendar calendar;
+    SimpleDateFormat dateformat;
     TextView twEmotional;
     TextView twIntellectual;
     TextView twPhysics;
+    SQLiteDatabase db;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_biorhythmus);
-
-        edDate = (EditText)findViewById(R.id.edDate);
+        dateformat = new SimpleDateFormat("dd.MM.yyyy");
+        calendar =Calendar.getInstance();
+        edDate = (TextView) findViewById(R.id.edDate);
         twEmotional = (TextView)findViewById(R.id.twEmotional);
         twIntellectual = (TextView)findViewById(R.id.twIntellectual);
         twPhysics = (TextView)findViewById(R.id.twPhysics);
+        db=getBaseContext().openOrCreateDatabase("Goodmorning.db",MODE_PRIVATE, null);
+        db.execSQL("CREATE TABLE IF NOT EXISTS bday (bdate DATE);");
+        getBday();
+
     }
+    public void getBday(){
+        Cursor query =db.rawQuery("SELECT * FROM bday;",null);
+        if (query.moveToFirst()){
+            do {
+                String date =query.getString(0);
+                edDate.setText(date);
+            }
+            while (query.moveToNext());
+        }
+        query.close();
+    }
+
+    public void onClick(View view){
+        showDialog(DIALOG_DATE);
+    }
+
+    protected Dialog onCreateDialog(int id) {
+        if (id == DIALOG_DATE) {
+
+            DatePickerDialog tpd = new DatePickerDialog(this, myCallBack,
+                    calendar.get(Calendar.DAY_OF_MONTH),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.YEAR));
+            return tpd;
+        }
+        return super.onCreateDialog(id);
+    }
+
+    DatePickerDialog.OnDateSetListener myCallBack = new DatePickerDialog.OnDateSetListener() {
+
+        public void onDateSet(DatePicker view, int year, int monthOfYear,
+                              int dayOfMonth) {
+            monthOfYear++;
+            edDate.setText(dayOfMonth+"."+monthOfYear+"."+year);
+        }
+    };
 
     public  void onCalculateBiorhytmusClick(View view) {
         String a = edDate.getText().toString();
+        db=getBaseContext().openOrCreateDatabase("Goodmorning.db",MODE_PRIVATE, null);
+        db.execSQL("DELETE FROM bday;");
+        db.execSQL("INSERT INTO bday VALUES('"+a+"');");
+        db.close();
+
 //        String[] dates = new String[3];
 //        dates = a.split(".");
 //        Day = Integer.parseInt(dates[0]);
 //        Month = Integer.parseInt(dates[1]);
 //        Year = Integer.parseInt(dates[2]);
+
         int days = calcDiff(a);
         double physical=(Math.sin(2*Math.PI*days/23))*100;
         double emo=(Math.sin(2*Math.PI*days/28))*100;
@@ -57,8 +109,6 @@ public class BiorhythmusActivity extends AppCompatActivity {
     }
 
     public  int calcDiff (String a){
-        Calendar calendar =Calendar.getInstance();
-        SimpleDateFormat dateformat = new SimpleDateFormat("dd.MM.yyyy");
         String currentTime=dateformat.format(calendar.getTime());
         Date date1=null;
         Date date2=null;
