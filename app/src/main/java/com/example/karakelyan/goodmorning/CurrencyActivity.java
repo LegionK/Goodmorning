@@ -31,8 +31,6 @@ public class CurrencyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_currency);
         listView = findViewById(R.id.listView);
         progressBar= (ProgressBar) findViewById(R.id.progressBar);
-
-//
         new NewThread().execute();
         adapter = new MyBasicAdapter(this, list);
     }
