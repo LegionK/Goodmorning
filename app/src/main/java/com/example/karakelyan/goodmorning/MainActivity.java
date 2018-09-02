@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         b_biorhythmus.startAnimation(anim1);
         b_habr.startAnimation(anim2);
         b_weather.startAnimation(anim3);
+        //salam
 
 //        Notification notification = new Notification.Builder(this)
 //                // Show controls on lock screen even when user hides sensitive content.
